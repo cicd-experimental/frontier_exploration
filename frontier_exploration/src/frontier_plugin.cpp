@@ -16,6 +16,8 @@ void FrontierPlugin::initialize(boost::shared_ptr<costmap_2d::Costmap2DROS>& cos
   FrontierPlugin::explore_costmap_ros_ = costmap;
   blacklist_marker_pub_ = nh_.advertise<visualization_msgs::Marker>("blacklist", 5);
   nh_.param<double>("blacklist_box_size", blacklist_box_size_, 0.5);
+  nh_.param<std::string>("frontier_travel_point",frontier_travel_point_ ,"closest");
+  ROS_INFO("%s", frontier_travel_point_.c_str());
 }
 
 void FrontierPlugin::blacklistPointVisually(geometry_msgs::Point point)
