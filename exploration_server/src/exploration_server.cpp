@@ -149,7 +149,7 @@ bool ExplorationServer::inBoundary()
       try
       {
         tf_listener_.waitForTransform(polygon_.header.frame_id, pose1.header.frame_id,
-            pose1.header.stamp, ros::Duration(.1));
+            ros::Time(0), ros::Duration(1));
         tf_listener_.transformPose(polygon_.header.frame_id, pose1, eval_pose);
       }
       catch(tf::TransformException &ex)
@@ -177,7 +177,7 @@ bool ExplorationServer::inBoundary()
       {
           geometry_msgs::PointStamped temp = eval_point;
           tf_listener_.waitForTransform(explore_center_.header.frame_id, temp.header.frame_id,
-              temp.header.stamp, ros::Duration(.1));
+              ros::Time(0), ros::Duration(1));
           tf_listener_.transformPoint(explore_center_.header.frame_id, temp, eval_point);
       }
 

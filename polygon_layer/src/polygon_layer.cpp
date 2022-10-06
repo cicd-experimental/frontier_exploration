@@ -90,7 +90,7 @@ bool PolygonLayer::setPolygon(const geometry_msgs::PolygonStamped &polygon)
     // Check that input polygon is transformable to costmap's global frame
     polygon_.polygon.points.clear();
     if (!tf_listener_.waitForTransform(layered_costmap_->getGlobalFrameID(),
-        polygon.header.frame_id, ros::Time::now(), ros::Duration(.1)))
+        polygon.header.frame_id, ros::Time(0), ros::Duration(2)))
     {
       ROS_ERROR_STREAM("Couldn't transform from " << layered_costmap_->getGlobalFrameID() << " to "
           << polygon.header.frame_id);
