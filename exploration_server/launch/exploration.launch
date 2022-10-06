@@ -1,35 +1,43 @@
 <launch>
-    <arg name="plugin" default="exploration_server::ExamplePlugin"/>
+    <arg name="plugin" default="frontier_exploration::FrontierPlugin"/>
     <param name="plugin_name" value="$(arg plugin)"/>
-    <arg name="blacklist_box_size" default="0.5"/>
+    <arg name="blacklist_box_size" default="1.5"/>
     <param name="blacklist_box_size" value="$(arg blacklist_box_size)"/>
+    <arg name="frontier_travel_point" default="centroid"/>
+    <param name="frontier_travel_point" value="$(arg frontier_travel_point)"/>
 
     <!-- Set to your sensor's range -->
-    <arg name="sensor_range" default="1.0"/>
+    <arg name="sensor_range" default="0.7"/>
 
     <node pkg="exploration_server" type="plugin_client" name="plugin_client" output="screen">
 
     </node>
 
-    <node pkg="exploration_server" type="exploration_server_node" name="exploration_server_node" output="screen">
+    <node pkg="exploration_server" type="exploration_server_node" name="exploration_server_node" output="screen" >
 
         <rosparam param="points" ns="explore_costmap" file="$(find exploration_server)/config/points.yaml" command="load"/>
-        <param name="frequency" type="double" value="2.0"/>
-        <param name="goal_aliasing" type="double" value="$(arg sensor_range)"/>
+        <param name="frequency" type="double" value="5.0"/>
+        <param name="goal_aliasing" type="double" value="1"/>
 
         #All standard costmap_2d parameters as in move_base, other than PolygonLayer
         <rosparam ns="explore_costmap" subst_value="true">
-            footprint: [[0.1, 0.0], [0.0, 0.1], [-0.1, 0.0], [0.0, -0.1]]
-            robot_radius: 0.10
+            footprint: [[0.375, -0.34], [0.375, 0.34], [-0.375,0.34], [-0.375, -0.34]]
+            robot_radius: 1
 
             transform_tolerance: 0.5
             update_frequency: 5.0
             publish_frequency: 5.0
 
             #must match incoming static map
-            global_frame: map
-            robot_base_frame: base_link
+            global_frame: robot_map
+            robot_base_frame: robot_base_footprint
             resolution: 0.05
+
+            #origin_x: -10
+            #origin_y: -10
+            #height: 20
+            #width: 20
+
 
             rolling_window: false
             track_unknown_space: true
@@ -40,23 +48,28 @@
                 - {name: polygon_layer,    type: "polygon_layer::PolygonLayer"}
                 #Can disable sensor layer if gmapping is fast enough to update scans
                 - {name: sensor,           type: "costmap_2d::ObstacleLayer"}
+                - {name: rear_laser,       type: "costmap_2d::ObstacleLayer"}
                 - {name: inflation,        type: "costmap_2d::InflationLayer"}
 
             static:
                 #Can pull data from gmapping, map_server or a non-rolling costmap
-                map_topic: /map
+                map_topic: /robot/move_base/global_costmap/costmap
                 # map_topic: move_base/global_costmap/costmap
                 subscribe_to_updates: true
 
             polygon_layer:
-                resize_to_polygon: true
-
+                #resize_to_polygon: false #if static
+                resize_to_polygon: false
             sensor:
                 observation_sources: laser
-                laser: {data_type: LaserScan, clearing: true, marking: true, topic: scan, inf_is_valid: true, raytrace_range: $(arg sensor_range), obstacle_range: $(arg sensor_range)}
+                laser: {data_type: LaserScan, clearing: true, marking: true, topic: /robot/front_laser/scan, inf_is_valid: true, raytrace_range: $(arg sensor_range), obstacle_range: $(arg sensor_range)}
+
+            rear_laser:
+                observation_sources: laser
+                laser: {data_type: LaserScan, clearing: true, marking: true, topic: /robot/rear_laser/scan, inf_is_valid: true, raytrace_range: $(arg sensor_range), obstacle_range: $(arg sensor_range)}
 
             inflation:
-                inflation_radius: 0.15
+                inflation_radius: 1.3
       </rosparam>
 
     </node>
