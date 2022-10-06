@@ -1,3 +1,3 @@
 rosPipeline(
-    projects: ''
+    projects: 'cicd-experimental-organization/robotnik_navigation_msgs/melodic-devel'
 )
